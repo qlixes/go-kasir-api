@@ -9,9 +9,9 @@ func main() {
 
 	configs.LoadApp()
 
-	db := configs.LoadDB()
+	err := http.ListenAndServe("8000", nil)
 
-	router := http.NewServeMux()
-
-	server := http.Server{}
+	if err != nil {
+		panic("Error run server")
+	}
 }
