@@ -2,16 +2,18 @@ package main
 
 import (
 	"kasir-api/configs"
+	"kasir-api/provider"
+	"kasir-api/routes"
 	"net/http"
 )
 
 func main() {
-
 	configs.LoadApp()
 
-	err := http.ListenAndServe("8000", nil)
+	provider := provider.NewContainer()
+	mux := http.NewServeMux()
 
-	if err != nil {
-		panic("Error run server")
-	}
+	routes.SetupRoute(mux, provider)
+
+	http.ListenAndServe(":8000", mux)
 }
