@@ -72,6 +72,7 @@ func (r *categoryRepo) FindName(name string) (*model.Category, error) {
 
 func (r *categoryRepo) Erase(id string) error {
 	query := "DELETE FROM categories where id = $1"
+
 	row, err := r.db.Exec(query, id)
 	if err != nil {
 		return err
