@@ -1,8 +1,8 @@
-package models
+package model
 
 type Product struct {
-	BaseModel
-	Name     string `json:"name" gorm:"unique"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
 	Price    int    `json:"price"`
 	Quantity int    `json:"quantity"`
 }
