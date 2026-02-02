@@ -35,5 +35,7 @@ func NewPgsql(config *Config) (*sql.DB, error) {
 		return nil, err
 	}
 
+	log.Println("Successfully connect database")
+
 	return db, err
 }
