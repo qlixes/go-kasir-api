@@ -6,6 +6,7 @@ import (
 )
 
 type HttpResponse struct {
+	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
@@ -15,6 +16,7 @@ func ResponseSuccess(w http.ResponseWriter, httpCode int, message string, data i
 	w.WriteHeader(httpCode)
 
 	response := HttpResponse{
+		Code:    httpCode,
 		Message: message,
 		Data:    data,
 	}
@@ -27,6 +29,7 @@ func ResponseFail(w http.ResponseWriter, httpCode int, message string) {
 	w.WriteHeader(httpCode)
 
 	response := HttpResponse{
+		Code:    httpCode,
 		Message: message,
 	}
 
