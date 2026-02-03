@@ -86,7 +86,7 @@ func (r *categoryRepo) Erase(id string) error {
 }
 
 func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category, error) {
-	query := "UPDATE categories SET name = $1, description = $2 WHERE id = $3"
+	query := "UPDATE categories SET name = $1, description = $2 WHERE id = $3 RETURNING id, name, description"
 	err := r.db.QueryRow(query, payload.Name, payload.Description, id).Scan(&item.ID, &item.Name, &item.Description)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category
 }
 
 func (r *categoryRepo) Store(payload *model.Category) (*model.Category, error) {
-	query := "INSERT INTO categories(name, description) VALUES ($1, $2)"
+	query := "INSERT INTO categories(name, description) VALUES ($1, $2) RETURNING id, name, description"
 	err := r.db.QueryRow(query, payload.Name, payload.Description).Scan(&item.ID, &item.Name, &item.Description)
 	if err != nil {
 		return nil, err
