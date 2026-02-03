@@ -1,10 +1,13 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 
 	"kasir-api/internal/model"
 )
+
+var ctx = context.Background()
 
 type CategoryRepository interface {
 	FindAll() ([]model.Category, error)
@@ -86,9 +89,19 @@ func (r *categoryRepo) Erase(id string) error {
 }
 
 func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category, error) {
-	query := "UPDATE categories SET name = $1, description = $2 WHERE id = $3 RETURNING id, name, description"
-	err := r.db.QueryRow(query, payload.Name, payload.Description, id).Scan(&item.ID, &item.Name, &item.Description)
+	tx, err := r.db.Begin()
 	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "UPDATE categories SET name = $1, description = $2 WHERE id = $3 RETURNING id, name, description"
+	err = tx.QueryRow(query, payload.Name, payload.Description, id).Scan(&item.ID, &item.Name, &item.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -96,9 +109,19 @@ func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category
 }
 
 func (r *categoryRepo) Store(payload *model.Category) (*model.Category, error) {
-	query := "INSERT INTO categories(name, description) VALUES ($1, $2) RETURNING id, name, description"
-	err := r.db.QueryRow(query, payload.Name, payload.Description).Scan(&item.ID, &item.Name, &item.Description)
+	tx, err := r.db.Begin()
 	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "INSERT INTO categories(name, description) VALUES ($1, $2) RETURNING id, name, description"
+	err = tx.QueryRowContext(ctx, query, payload.Name, payload.Description).Scan(&item.ID, &item.Name, &item.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
