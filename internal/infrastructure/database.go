@@ -10,7 +10,7 @@ import (
 )
 
 func NewPgsql(config *Config) (*sql.DB, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&pool_max_conns=10",
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&prefer_simple_protocol=true",
 		config.DbConfig.User,
 		config.DbConfig.Password,
 		config.DbConfig.Host,

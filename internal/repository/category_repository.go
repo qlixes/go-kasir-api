@@ -1,13 +1,10 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
 
 	"kasir-api/internal/model"
 )
-
-var ctx = context.Background()
 
 type CategoryRepository interface {
 	FindAll() ([]model.Category, error)
@@ -22,16 +19,12 @@ type categoryRepo struct {
 	db *sql.DB
 }
 
-var (
-	items []model.Category
-	item  model.Category
-)
-
 func NewCategoryRepository(db *sql.DB) CategoryRepository {
 	return &categoryRepo{db: db}
 }
 
 func (r *categoryRepo) FindAll() ([]model.Category, error) {
+	var items []model.Category
 	query := "SELECT id, name, description FROM categories"
 
 	rows, err := r.db.Query(query)
@@ -41,6 +34,7 @@ func (r *categoryRepo) FindAll() ([]model.Category, error) {
 
 	defer rows.Close()
 
+	var item model.Category
 	for rows.Next() {
 		err := rows.Scan(&item.ID, &item.Name, &item.Description)
 		if err != nil {
@@ -53,6 +47,7 @@ func (r *categoryRepo) FindAll() ([]model.Category, error) {
 }
 
 func (r *categoryRepo) FindId(id string) (*model.Category, error) {
+	var item model.Category
 	query := "SELECT id, name, description FROM categories WHERE id = $1"
 
 	err := r.db.QueryRow(query, id).Scan(&item.ID, &item.Name, &item.Description)
@@ -64,6 +59,7 @@ func (r *categoryRepo) FindId(id string) (*model.Category, error) {
 }
 
 func (r *categoryRepo) FindName(name string) (*model.Category, error) {
+	var item model.Category
 	query := "SELECT id, name, description FROM categories WHERE name = $1"
 
 	err := r.db.QueryRow(query, name).Scan(&item.ID, &item.Name, &item.Description)
@@ -89,6 +85,7 @@ func (r *categoryRepo) Erase(id string) error {
 }
 
 func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category, error) {
+	var item model.Category
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, err
@@ -109,6 +106,7 @@ func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category
 }
 
 func (r *categoryRepo) Store(payload *model.Category) (*model.Category, error) {
+	var item model.Category
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, err
@@ -116,7 +114,7 @@ func (r *categoryRepo) Store(payload *model.Category) (*model.Category, error) {
 	defer tx.Rollback()
 
 	query := "INSERT INTO categories(name, description) VALUES ($1, $2) RETURNING id, name, description"
-	err = tx.QueryRowContext(ctx, query, payload.Name, payload.Description).Scan(&item.ID, &item.Name, &item.Description)
+	err = tx.QueryRow(query, payload.Name, payload.Description).Scan(&item.ID, &item.Name, &item.Description)
 	if err != nil {
 		return nil, err
 	}
