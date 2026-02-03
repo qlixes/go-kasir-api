@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
 	"kasir-api/internal/model"
 	"kasir-api/internal/repository"
 )
@@ -46,9 +48,9 @@ func (s *categoryService) EditCategory(id string, category model.Category) (*mod
 
 func (s *categoryService) StoreCategory(category model.Category) (*model.Category, error) {
 	_, err := s.categoryRepo.FindName(category.Name)
-	if err != nil {
-		return nil, err
+	if err == sql.ErrNoRows {
+		return s.categoryRepo.Store(&category)
 	}
 
-	return s.categoryRepo.Store(&category)
+	return nil, errors.New("Duplicate record")
 }
