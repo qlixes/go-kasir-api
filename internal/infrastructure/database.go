@@ -10,7 +10,7 @@ import (
 )
 
 func NewPgsql(config *Config) (*sql.DB, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&default_query_exec_mode=cache_describe&statement_cache_capacity=0&statement_cache_mode=describe",
 		config.DbConfig.User,
 		config.DbConfig.Password,
 		config.DbConfig.Host,
@@ -34,6 +34,8 @@ func NewPgsql(config *Config) (*sql.DB, error) {
 		log.Fatal(err.Error())
 		return nil, err
 	}
+
+	log.Println("Successfully connect database")
 
 	return db, err
 }

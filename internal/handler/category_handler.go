@@ -13,11 +13,6 @@ type CategoryHandler struct {
 	service service.CategoryService
 }
 
-var (
-	items []model.Category
-	item  model.Category
-)
-
 func NewCategoryHandler(service service.CategoryService) *CategoryHandler {
 	return &CategoryHandler{
 		service: service,
@@ -25,6 +20,7 @@ func NewCategoryHandler(service service.CategoryService) *CategoryHandler {
 }
 
 func (s *CategoryHandler) GetCategoryIndex(w http.ResponseWriter, r *http.Request) {
+	var items []model.Category
 	items, err := s.service.ShowCategory()
 	if err != nil {
 		util.ResponseFail(w, 500, err.Error())
@@ -34,6 +30,7 @@ func (s *CategoryHandler) GetCategoryIndex(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *CategoryHandler) PostCategoryStore(w http.ResponseWriter, r *http.Request) {
+	var item model.Category
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
 		util.ResponseFail(w, 500, err.Error())
@@ -49,6 +46,7 @@ func (s *CategoryHandler) PostCategoryStore(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *CategoryHandler) PutCategoryId(w http.ResponseWriter, r *http.Request) {
+	var item model.Category
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
 		util.ResponseFail(w, 500, err.Error())
@@ -65,6 +63,7 @@ func (s *CategoryHandler) PutCategoryId(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *CategoryHandler) GetCategoryId(w http.ResponseWriter, r *http.Request) {
+	var item *model.Category
 	item, err := s.service.FindCategoryId(r.PathValue("id"))
 	if err != nil {
 		util.ResponseFail(w, 500, err.Error())

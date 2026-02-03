@@ -1,8 +1,10 @@
 package model
 
+import "github.com/google/uuid"
+
 type Product struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	Price    int    `json:"price"`
-	Quantity int    `json:"quantity"`
+	ID       uuid.UUID `json:"id"`
+	Name     string    `json:"name"`
+	Price    int       `json:"price"`
+	Quantity int       `json:"quantity"`
 }
