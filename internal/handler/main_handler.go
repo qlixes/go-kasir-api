@@ -17,6 +17,6 @@ func NewMainHandler(mainService service.MainService) *MainHandler {
 	}
 }
 
-func (c *MainHandler) MainIndex(w http.ResponseWriter, r *http.Request) {
+func (c *MainHandler) GetMainIndex(w http.ResponseWriter, r *http.Request) {
 	util.ResponseSuccess(w, 200, "API service available", nil)
 }

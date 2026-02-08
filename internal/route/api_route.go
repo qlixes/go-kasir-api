@@ -19,5 +19,5 @@ func SetupRoute(mux *http.ServeMux, p *provider.HandlerProvider) {
 	mux.HandleFunc("GET /categories/{id}", p.CategoryHandler.GetCategoryId)
 	mux.HandleFunc("DELETE /categories/{id}", p.CategoryHandler.DeleteCategoryId)
 
-	mux.HandleFunc("GET /checkhealth", p.MainHandler.MainIndex)
+	mux.HandleFunc("GET /checkhealth", p.MainHandler.GetMainIndex)
 }

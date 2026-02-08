@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 
 	"kasir-api/internal/model"
@@ -19,13 +20,15 @@ type ProductRepo struct {
 	db *sql.DB
 }
 
+var ctx = context.Background()
+
 func NewProductRepository(db *sql.DB) ProductRepository {
 	return &ProductRepo{db: db}
 }
 
 func (r *ProductRepo) FindAll() ([]model.Product, error) {
 	var items []model.Product
-	query := "SELECT id, name, price, quantity, category_id FROM products"
+	query := "SELECT id, name, price, quantity, status, category_id, status FROM products"
 
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -36,7 +39,7 @@ func (r *ProductRepo) FindAll() ([]model.Product, error) {
 
 	var item model.Product
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Category.ID)
+		err := rows.Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Status, &item.Category.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -48,20 +51,10 @@ func (r *ProductRepo) FindAll() ([]model.Product, error) {
 
 func (r *ProductRepo) FindId(id string) (*model.Product, error) {
 	var item model.Product
-	tx, err := r.db.Begin()
+	query := "SELECT id, name, price, quantity, status, category_id FROM products WHERE id = $1"
+
+	err := r.db.QueryRow(query, id).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Status, &item.Category.ID)
 	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
-	query := "SELECT id, name, price, quantity, category_id FROM products WHERE id = $1"
-
-	err = tx.QueryRow(query, id).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Category.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -70,20 +63,10 @@ func (r *ProductRepo) FindId(id string) (*model.Product, error) {
 
 func (r *ProductRepo) FindName(name string) (*model.Product, error) {
 	var item model.Product
-	tx, err := r.db.Begin()
+	query := "SELECT id, name, price, quantity, status, category_id FROM products WHERE name = $1"
+
+	err := r.db.QueryRow(query, name).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Status, &item.Category.ID)
 	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
-	query := "SELECT id, name, price, quantity, category_id FROM products WHERE name = $1"
-
-	err = tx.QueryRow(query, name).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Category.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -119,8 +102,9 @@ func (r *ProductRepo) Edit(id string, payload *model.Product) (*model.Product, e
 	}
 	defer tx.Rollback()
 
-	query := "UPDATE products SET name = $1, price = $2, quantity = $3, category_id = $4 WHERE id = $5 RETURNING id, name, price, quantity, category_id"
-	err = tx.QueryRow(query, payload.Name, payload.Price, payload.Quantity, payload.Category.ID, id).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Category.ID)
+	query := "UPDATE products SET name = $1, price = $2, quantity = $3, status = $4, category_id = $5 WHERE id = $6 RETURNING id, name, price, quantity, status"
+
+	err = tx.QueryRow(query, payload.Name, payload.Price, payload.Quantity, payload.Status, payload.Category.ID, id).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +112,8 @@ func (r *ProductRepo) Edit(id string, payload *model.Product) (*model.Product, e
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
+
+	item.Category = payload.Category
 
 	return &item, nil
 }
@@ -140,8 +126,8 @@ func (r *ProductRepo) Store(payload *model.Product) (*model.Product, error) {
 	}
 	defer tx.Rollback()
 
-	query := "INSERT INTO products(name, description, price, quantity, category_id) VALUES ($1, $2) RETURNING id, name, price, quantity, category_id"
-	err = tx.QueryRow(query, payload.Name, payload.Price, payload.Quantity, payload.Category.ID).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Category.ID)
+	query := "INSERT INTO products(name, price, quantity, status, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, price, quantity, status, category_id"
+	err = tx.QueryRow(query, payload.Name, payload.Price, payload.Quantity, payload.Status, payload.Category.ID).Scan(&item.ID, &item.Name, &item.Price, &item.Quantity, &item.Status, &item.Category.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +135,8 @@ func (r *ProductRepo) Store(payload *model.Product) (*model.Product, error) {
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
+
+	item.Category = payload.Category
 
 	return &item, nil
 }

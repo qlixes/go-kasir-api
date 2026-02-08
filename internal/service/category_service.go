@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+
 	"kasir-api/internal/model"
 	"kasir-api/internal/repository"
 )
@@ -34,6 +35,11 @@ func (s *categoryService) FindCategoryId(id string) (*model.Category, error) {
 }
 
 func (s *categoryService) EraseCategory(id string) error {
+	_, err := s.categoryRepo.FindId(id)
+	if err == sql.ErrNoRows {
+		return errors.New("Missing id")
+	}
+
 	return s.categoryRepo.Erase(id)
 }
 

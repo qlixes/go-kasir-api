@@ -14,7 +14,10 @@ func main() {
 	config := infrastructure.NewConfig()
 	appPort := fmt.Sprintf(":%d", config.AppConfig.Port)
 
-	db, _ := infrastructure.NewPgsql(config)
+	db, err := infrastructure.NewPgsql(config)
+	if err != nil {
+		log.Fatalln("Failed connect database !")
+	}
 	defer db.Close()
 
 	// DI
@@ -26,6 +29,6 @@ func main() {
 	routes.SetupRoute(mux, handlers)
 
 	if err := http.ListenAndServe(appPort, mux); err != nil {
-		log.Fatal("Failed run server")
+		log.Fatalln("Failed run server !")
 	}
 }

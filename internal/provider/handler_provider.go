@@ -11,7 +11,7 @@ type HandlerProvider struct {
 func NewHandler(service *ServiceProvider) *HandlerProvider {
 	categoryHandler := handler.NewCategoryHandler(service.CategoryService)
 	mainHandler := handler.NewMainHandler(service.MainService)
-	productHandler := handler.NewProductHandler(service.ProductService)
+	productHandler := handler.NewProductHandler(service.ProductService, service.CategoryService)
 
 	return &HandlerProvider{
 		CategoryHandler: categoryHandler,
