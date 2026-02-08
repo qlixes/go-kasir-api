@@ -25,13 +25,12 @@ func NewCategoryRepository(db *sql.DB) CategoryRepository {
 
 func (r *categoryRepo) FindAll() ([]model.Category, error) {
 	var items []model.Category
-	query := "SELECT id, name, description FROM categories"
 
+	query := "SELECT id, name, description FROM categories"
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	var item model.Category
@@ -48,20 +47,11 @@ func (r *categoryRepo) FindAll() ([]model.Category, error) {
 
 func (r *categoryRepo) FindId(id string) (*model.Category, error) {
 	var item model.Category
-	tx, err := r.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
 
 	query := "SELECT id, name, description FROM categories WHERE id = $1"
 
-	err = tx.QueryRow(query, id).Scan(&item.ID, &item.Name, &item.Description)
+	err := r.db.QueryRow(query, id).Scan(&item.ID, &item.Name, &item.Description)
 	if err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -70,20 +60,11 @@ func (r *categoryRepo) FindId(id string) (*model.Category, error) {
 
 func (r *categoryRepo) FindName(name string) (*model.Category, error) {
 	var item model.Category
-	tx, err := r.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
 
 	query := "SELECT id, name, description FROM categories WHERE name = $1"
 
-	err = tx.QueryRow(query, name).Scan(&item.ID, &item.Name, &item.Description)
+	err := r.db.QueryRow(query, name).Scan(&item.ID, &item.Name, &item.Description)
 	if err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -98,7 +79,6 @@ func (r *categoryRepo) Erase(id string) error {
 	defer tx.Rollback()
 
 	query := "DELETE FROM categories where id = $1"
-
 	_, err = tx.Exec(query, id)
 	if err != nil {
 		return err
@@ -113,6 +93,7 @@ func (r *categoryRepo) Erase(id string) error {
 
 func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category, error) {
 	var item model.Category
+
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, err
@@ -134,6 +115,7 @@ func (r *categoryRepo) Edit(id string, payload *model.Category) (*model.Category
 
 func (r *categoryRepo) Store(payload *model.Category) (*model.Category, error) {
 	var item model.Category
+
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, err

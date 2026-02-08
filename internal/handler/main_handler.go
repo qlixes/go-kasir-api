@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
-	"kasir-api/internal/service"
 	"net/http"
+
+	"kasir-api/internal/service"
+	"kasir-api/internal/util"
 )
 
 type MainHandler struct {
@@ -16,12 +17,6 @@ func NewMainHandler(mainService service.MainService) *MainHandler {
 	}
 }
 
-func (c *MainHandler) MainIndex(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	format := map[string]string{
-		"status":  "Success",
-		"message": "API running",
-	}
-
-	json.NewEncoder(w).Encode(format)
+func (c *MainHandler) GetMainIndex(w http.ResponseWriter, r *http.Request) {
+	util.ResponseSuccess(w, 200, "API service available", nil)
 }
