@@ -25,7 +25,9 @@ func NewProductHandler(product service.ProductService, category service.Category
 
 func (s *ProductHandler) GetProductIndex(w http.ResponseWriter, r *http.Request) {
 	var items []model.Product
-	items, err := s.product.ShowProduct()
+	name := r.URL.Query().Get("name")
+	active := r.URL.Query().Get("active")
+	items, err := s.product.ShowProduct(name, &active)
 	if err != nil {
 		util.ResponseFail(w, 500, err.Error())
 		return

@@ -9,7 +9,7 @@ import (
 )
 
 type ProductService interface {
-	ShowProduct() ([]model.Product, error)
+	ShowProduct(name string, active *bool) ([]model.Product, error)
 	FindProductId(id string) (*model.Product, error)
 	EraseProduct(id string) error
 	EditProduct(id string, product model.Product) (*model.Product, error)
@@ -26,8 +26,8 @@ func NewProductService(productRepo repository.ProductRepository) ProductService 
 	}
 }
 
-func (s *productService) ShowProduct() ([]model.Product, error) {
-	return s.productRepo.FindAll()
+func (s *productService) ShowProduct(name string, active *bool) ([]model.Product, error) {
+	return s.productRepo.FindAll(name, active)
 }
 
 func (s *productService) FindProductId(id string) (*model.Product, error) {

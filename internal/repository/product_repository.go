@@ -8,7 +8,7 @@ import (
 )
 
 type ProductRepository interface {
-	FindAll() ([]model.Product, error)
+	FindAll(name string, active bool) ([]model.Product, error)
 	FindId(id string) (*model.Product, error)
 	FindName(name string) (*model.Product, error)
 	Erase(id string) error
@@ -26,9 +26,14 @@ func NewProductRepository(db *sql.DB) ProductRepository {
 	return &ProductRepo{db: db}
 }
 
-func (r *ProductRepo) FindAll() ([]model.Product, error) {
+func (r *ProductRepo) FindAll(name string, active bool) ([]model.Product, error) {
 	var items []model.Product
 	query := "SELECT id, name, price, quantity, status, category_id, status FROM products"
+
+	if name != "" || active == false {
+		query += " WHERE "
+		args
+	}
 
 	rows, err := r.db.Query(query)
 	if err != nil {
